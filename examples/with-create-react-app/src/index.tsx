@@ -5,11 +5,21 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 
 import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import {
+  connectorsForWallets,
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import App from './App';
+import {
+  injectedWallet,
+  rainbowWallet,
+  walletConnectWallet,
+} from '@rainbow-me/rainbowkit/wallets';
+import { uauth } from './uauth';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
@@ -22,11 +32,25 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [publicProvider()]
 );
 
-const { connectors } = getDefaultWallets({
+/*const { connectors } = getDefaultWallets({
   appName: 'RainbowKit demo',
   projectId: 'YOUR_PROJECT_ID',
   chains,
-});
+});*/
+const projectId = '544ba487fa26b40b7f9ab3794e60ac36';
+const clientID = '3df478d4-fe59-42cd-9b0e-56af44392077';
+const redirectUri = 'http://localhost:3030';
+
+const connectors = connectorsForWallets([
+  {
+    groupName: 'Recommended',
+    wallets: [
+      uauth({ projectId, chains, clientID, redirectUri }),
+      injectedWallet({ chains }),
+      walletConnectWallet({ projectId, chains }),
+    ],
+  },
+]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
